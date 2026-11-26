@@ -95,3 +95,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .tnum{display:flex;align-items:center;gap:10px;font-weight:600}
 .tnum input{width:90px;font:inherit;font-size:17px;padding:10px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
 .tcard{cursor:pointer}
+.tbl.oval{border-radius:50%}
+.tbl.bar{border-radius:8px}
+.oitems{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.oi{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 10px;background:var(--bg);border-radius:var(--r-m)}
+.oi .grow{flex:1;font-weight:500}
+.stb{min-height:44px;min-width:92px;padding:0 12px;border-radius:12px;font-weight:600;font-size:13px}
+.s-accepted{background:#EAF0F5;color:#4F7392}
+.s-cooking{background:#FBF3E2;color:#9A7424}
+.s-ready{background:var(--accent-soft);color:#4F6449}
+.s-served{background:#EEEFEB;color:var(--text-2)}
+.btn.danger{background:var(--err)}

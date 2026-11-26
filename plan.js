@@ -4,8 +4,9 @@ import { getActiveOrders } from './orders.js';
 
 export const st = { edit: false, sel: null, del: false };
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-const SHAPES = [['square', 'Квадрат'], ['round', 'Круг'], ['wide', 'Длинный']];
-const dims = (shape, base) => ({ height: base, width: shape === 'wide' ? Math.round(base * 1.6) : base });
+const SHAPES = [['square', 'Квадрат'], ['round', 'Круг'], ['wide', 'Длинный'], ['oval', 'Овал'], ['tall', 'Высокий'], ['bar', 'Стойка']];
+const RATIO = { square: [1, 1], round: [1, 1], wide: [1.6, 1], oval: [1.6, 1], tall: [1, 1.6], bar: [2.4, .7] };
+const dims = (shape, s) => { const [w, h] = RATIO[shape] || RATIO.square; return { width: Math.round(s * w), height: Math.max(40, Math.round(s * h)), size: s }; };
 
 export function renderPlan(tables, orders) {
   const busy = new Map(orders.map(o => [o.tableId, o]));
@@ -30,20 +31,24 @@ export function renderPlan(tables, orders) {
 
 // Один набор обработчиков на экран (делегирование). refresh — перерисовать зал, openTable — записать заказ на стол.
 export function bindPlan(view, refresh, openTable) {
-  let drag = null;
+  let drag = null, adding = false;
   const cur = async () => (await getTables()).find(t => t.id === st.sel);
 
   view.addEventListener('click', async e => {
     if (e.target.closest('[data-pedit]')) { st.edit = !st.edit; st.sel = null; st.del = false; return refresh(); }
-    if (e.target.closest('[data-padd]')) { st.sel = (await addTable()).id; st.del = false; return refresh(); }
+    if (e.target.closest('[data-padd]')) {
+      if (adding) return; adding = true; // защита от двойного нажатия
+      try { st.sel = (await addTable()).id; st.del = false; } finally { adding = false; }
+      return refresh();
+    }
     const tbl = e.target.closest('.tbl');
     if (tbl && !st.edit) return openTable(+tbl.dataset.num);
     const t = st.sel && await cur();
     if (!t) return;
     const sh = e.target.closest('[data-shape]');
-    if (sh) { await updateTable(t.id, { shape: sh.dataset.shape, ...dims(sh.dataset.shape, t.height) }); return refresh(); }
+    if (sh) { await updateTable(t.id, { shape: sh.dataset.shape, ...dims(sh.dataset.shape, t.size ?? t.height) }); return refresh(); }
     const sz = e.target.closest('[data-size]');
-    if (sz) { await updateTable(t.id, dims(t.shape, clamp(t.height + 8 * +sz.dataset.size, 44, 120))); return refresh(); }
+    if (sz) { await updateTable(t.id, dims(t.shape, clamp((t.size ?? t.height) + 8 * +sz.dataset.size, 44, 120))); return refresh(); }
     if (e.target.closest('[data-pdel]')) {
       if (!st.del) { st.del = true; return refresh(); }
       if ((await getActiveOrders()).some(o => o.tableId === t.id)) { st.del = false; toast('Сначала закройте заказ этого стола'); return refresh(); }

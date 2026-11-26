@@ -1,5 +1,5 @@
 // IndexedDB: все сущности из ТЗ. Версионирование через onupgradeneeded.
-const NAME = 'oma', VERSION = 1;
+const NAME = 'oma', VERSION = 2;
 let dbp;
 export const wrap = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
 
@@ -14,7 +14,16 @@ export function db() {
         mk('orders', ['status', 'tableId', 'shiftId', 'createdAt']); mk('orderItems', ['orderId', 'status']);
         mk('shifts', ['startedAt']); mk('tips', ['shiftId']); mk('notes', ['tableId']);
       }
-      // if (e.oldVersion < 2) { ... будущие миграции здесь }
+      if (e.oldVersion >= 1 && e.oldVersion < 2) {
+        let i = 0;
+        r.transaction.objectStore('tables').openCursor().onsuccess = ev => {
+          const cur = ev.target.result; if (!cur) return;
+          const t = cur.value; let ch = false;
+          if (t.positionX === 0 && t.positionY === 0) { t.positionX = 14 + (i % 4) * 24; t.positionY = 14 + (Math.floor(i / 4) % 4) * 22; ch = true; }
+          if (t.width === 80 && t.height === 80) { t.width = 64; t.height = 64; ch = true; }
+          i++; if (ch) cur.update(t); cur.continue();
+        };
+      }
     };
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);

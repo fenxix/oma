@@ -47,3 +47,17 @@ export async function recentTables(n = 5) {
   return [...new Set(all.map(o => o.tableNumber))].slice(0, n);
 }
 export async function tableCount() { return (await dbAll('tables')).length; }
+
+export const LABEL = { accepted: 'Принято', cooking: 'Готовится', ready: 'Готово', served: 'Подано' };
+const NEXT = { accepted: 'cooking', cooking: 'ready', ready: 'served', served: 'accepted' };
+// Статус меняется вручную по кругу; время изменения сохраняется
+export const cycleItem = id => tx(['orderItems'], async I => {
+  const i = await wrap(I.get(id));
+  i.status = NEXT[i.status]; i.updatedAt = Date.now(); i.servedAt = i.status === 'served' ? i.updatedAt : null;
+  await wrap(I.put(i));
+});
+export const closeOrder = id => tx(['orders'], async O => {
+  const o = await wrap(O.get(id));
+  o.status = 'closed'; o.updatedAt = Date.now();
+  await wrap(O.put(o));
+});

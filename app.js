@@ -3,6 +3,7 @@ import { initRouter } from './router.js';
 import { getActiveOrders } from './orders.js';
 import { getTables } from './tables.js';
 import { renderPlan, bindPlan } from './plan.js';
+import { openTable } from './table.js';
 import { openQuick } from './quick.js';
 
 const NAV = [['hall', 'Зал', 'grid'], ['orders', 'Заказы', 'list'], ['add'], ['shift', 'Смена', 'clock'], ['more', 'Ещё', 'more']];
@@ -19,7 +20,8 @@ const screens = {
     const name = store.get('settings', {}).waiterName || '';
     const orders = await getActiveOrders(), tables = await getTables(), total = tables.length;
     const pos = orders.reduce((s, o) => s + o.items.length, 0);
-    const stats = [['Свободно', Math.max(0, total - orders.length)], ['Заняты', orders.length], ['Позиций', pos], ['Готово', 0]];
+    const ready = orders.reduce((s, o) => s + o.items.filter(i => i.status === 'ready').length, 0);
+    const stats = [['Свободно', Math.max(0, total - orders.length)], ['Заняты', orders.length], ['Позиций', pos], ['Готово', ready]];
     let body;
     if (mode === 'plan') body = renderPlan(tables, orders);
     else if (!orders.length) body = empty('list', 'Столов в работе нет', 'Нажмите «+» внизу и запишите первый заказ.');
@@ -69,14 +71,18 @@ document.body.addEventListener('click', e => {
   if (g) { location.hash = '#/' + g.dataset.go; return; }
   if (e.target.closest('[data-add]')) { openQuick(() => router.refresh()); return; }
   const op = e.target.closest('[data-open]');
-  if (op) { openQuick(() => router.refresh(), +op.dataset.open); return; }
+  if (op) { tap(+op.dataset.open); return; }
   const m = e.target.closest('[data-mode]');
   if (m) { store.set('hallMode', m.dataset.mode); router.refresh(); return; }
   const s = e.target.closest('[data-soon]');
   if (s) toast(`«${s.dataset.soon}» появится на следующем этапе`);
 });
 
-bindPlan(view, () => router.refresh(), n => openQuick(() => router.refresh(), n));
+// Нажатие на стол: есть заказ — открыть стол, нет — сразу записать заказ
+const tap = async n => (await getActiveOrders()).some(o => o.tableNumber === n)
+  ? openTable(n, () => router.refresh(), () => openQuick(() => router.refresh(), n))
+  : openQuick(() => router.refresh(), n);
+bindPlan(view, () => router.refresh(), tap);
 
 const conn = document.getElementById('conn'), connText = document.getElementById('connText');
 const setConn = () => { conn.classList.toggle('off', !navigator.onLine); connText.textContent = navigator.onLine ? 'Онлайн' : 'Офлайн'; };

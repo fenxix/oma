@@ -6,7 +6,7 @@ export const getTables = async () => (await dbAll('tables')).sort((a, b) => a.nu
 
 export const addTable = () => tx(['tables'], async T => {
   const all = await wrap(T.getAll());
-  const t = { number: all.reduce((m, x) => Math.max(m, x.number), 0) + 1, status: 'free', ...slot(all.length), width: 64, height: 64, shape: 'square', createdAt: Date.now() };
+  const t = { number: all.reduce((m, x) => Math.max(m, x.number), 0) + 1, status: 'free', ...slot(all.length), width: 64, height: 64, size: 64, shape: 'square', createdAt: Date.now() };
   t.id = await wrap(T.add(t));
   return t;
 });
