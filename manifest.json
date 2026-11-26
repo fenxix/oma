@@ -1,6 +1,6 @@
 {
-  "name": "OFFIC — помощник официанта",
-  "short_name": "OFFIC",
+  "name": "OMA — помощник официанта",
+  "short_name": "OMA",
   "description": "Столики, заказы, подача, смены и чаевые",
   "start_url": "./index.html",
   "scope": "./",
@@ -8,5 +8,5 @@
   "orientation": "portrait",
   "background_color": "#F5F6F2",
   "theme_color": "#F5F6F2",
-  "icons": [{ "src": "assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
 }

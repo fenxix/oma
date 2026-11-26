@@ -4,6 +4,8 @@ const P = {
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   chart: '<path d="M12 20V10M18 20V4M6 20v-4"/>',
   more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
   chev: '<path d="m9 18 6-6-6-6"/>',
   menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
   star: '<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.3-6.2 3.3L8 14.2 3 9.3l6.9-1z"/>',
@@ -32,3 +34,5 @@ export function greeting(name = '') {
   const g = h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 18 ? 'Добрый день' : 'Добрый вечер';
   return name ? `${g}, ${name}` : g;
 }
+export const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const hhmm = t => new Date(t).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
