@@ -8,7 +8,7 @@ function renum(ta) {
 }
 const itemsOf = ta => ta.value.split('\n').map(l => strip(l).trim()).filter(Boolean);
 
-export function openQuick(onSaved) {
+export function openQuick(onSaved, table = null) {
   const bg = document.createElement('div');
   bg.className = 'sheet-bg';
   bg.innerHTML = `<div class="sheet" role="dialog" aria-label="Запись заказа">
@@ -58,7 +58,7 @@ export function openQuick(onSaved) {
     const rec = await recentTables();
     const nums = [...new Set([...rec, 1, 2, 3, 4, 5, 6, 7, 8])].slice(0, 10);
     $('#chips').innerHTML = nums.map(n => `<button class="chip" data-n="${n}">${esc(n)}</button>`).join('');
-    tn.focus();
+    if (table) { tn.value = table; tn.dispatchEvent(new Event('input')); } else tn.focus();
   };
   $('#back').onclick = () => { $('#s2').hidden = true; $('#s1').hidden = false; ta.focus(); };
   tn.addEventListener('input', () => { $('#save').disabled = !(+tn.value > 0); });

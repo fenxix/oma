@@ -1,6 +1,8 @@
 import { icon, toast, store, fmtDate, greeting, esc, hhmm } from './utils.js';
 import { initRouter } from './router.js';
-import { getActiveOrders, tableCount } from './orders.js';
+import { getActiveOrders } from './orders.js';
+import { getTables } from './tables.js';
+import { renderPlan, bindPlan } from './plan.js';
 import { openQuick } from './quick.js';
 
 const NAV = [['hall', 'Зал', 'grid'], ['orders', 'Заказы', 'list'], ['add'], ['shift', 'Смена', 'clock'], ['more', 'Ещё', 'more']];
@@ -13,16 +15,16 @@ const plural = (n, a, b, c) => { const m = n % 100, k = n % 10; return m > 10 &&
 
 const screens = {
   async hall() {
-    const mode = store.get('hallMode', 'grid');
+    const mode = store.get('hallMode', 'plan');
     const name = store.get('settings', {}).waiterName || '';
-    const orders = await getActiveOrders(), total = await tableCount();
+    const orders = await getActiveOrders(), tables = await getTables(), total = tables.length;
     const pos = orders.reduce((s, o) => s + o.items.length, 0);
     const stats = [['Свободно', Math.max(0, total - orders.length)], ['Заняты', orders.length], ['Позиций', pos], ['Готово', 0]];
     let body;
-    if (mode === 'plan') body = empty('grid', 'План зала', 'Расстановка столиков появится на этапе 4. Пока удобнее режим «Сетка».');
+    if (mode === 'plan') body = renderPlan(tables, orders);
     else if (!orders.length) body = empty('list', 'Столов в работе нет', 'Нажмите «+» внизу и запишите первый заказ.');
     else body = `<div class="tables">${orders.map(o => `
-      <div class="card tcard"><div class="row"><b>Стол ${esc(o.tableNumber)}</b><span class="st">Принят</span></div>
+      <div class="card tcard" data-open="${esc(o.tableNumber)}"><div class="row"><b>Стол ${esc(o.tableNumber)}</b><span class="st">Принят</span></div>
       <span class="sub">${hhmm(o.createdAt)} · ${o.items.length} ${plural(o.items.length, 'позиция', 'позиции', 'позиций')}</span></div>`).join('')}</div>`;
     return `
       <div class="row"><div>${head(greeting(name), fmtDate(new Date()))}</div>
@@ -31,7 +33,7 @@ const screens = {
       <div class="seg" role="group" aria-label="Режим зала">
         <button data-mode="plan" aria-pressed="${mode === 'plan'}">План зала</button>
         <button data-mode="grid" aria-pressed="${mode === 'grid'}">Сетка</button></div>
-      ${mode === 'plan' || !orders.length ? `<div class="card">${body}</div>` : body}`;
+      ${mode === 'grid' && !orders.length ? `<div class="card">${body}</div>` : body}`;
   },
   async orders() {
     const orders = (await getActiveOrders()).reverse();
@@ -66,11 +68,15 @@ document.body.addEventListener('click', e => {
   const g = e.target.closest('[data-go]');
   if (g) { location.hash = '#/' + g.dataset.go; return; }
   if (e.target.closest('[data-add]')) { openQuick(() => router.refresh()); return; }
+  const op = e.target.closest('[data-open]');
+  if (op) { openQuick(() => router.refresh(), +op.dataset.open); return; }
   const m = e.target.closest('[data-mode]');
   if (m) { store.set('hallMode', m.dataset.mode); router.refresh(); return; }
   const s = e.target.closest('[data-soon]');
   if (s) toast(`«${s.dataset.soon}» появится на следующем этапе`);
 });
+
+bindPlan(view, () => router.refresh(), n => openQuick(() => router.refresh(), n));
 
 const conn = document.getElementById('conn'), connText = document.getElementById('connText');
 const setConn = () => { conn.classList.toggle('off', !navigator.onLine); connText.textContent = navigator.onLine ? 'Онлайн' : 'Офлайн'; };

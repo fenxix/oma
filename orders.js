@@ -1,4 +1,5 @@
 import { tx, wrap, dbAll, dbIndex } from './database.js';
+import { slot } from './tables.js';
 
 const DONE = ['paid', 'closed'];
 // "2x кофе" -> 2 штуки; остальное — одна штука
@@ -13,7 +14,7 @@ export async function saveQuickOrder({ number, lines, comment }) {
   return tx(['tables', 'orders', 'orderItems'], async (T, O, I) => {
     let table = (await wrap(T.index('number').getAll(number)))[0];
     if (!table) {
-      const id = await wrap(T.add({ number, status: 'free', positionX: 0, positionY: 0, width: 80, height: 80, shape: 'square', createdAt: now }));
+      const id = await wrap(T.add({ number, status: 'free', ...slot(await wrap(T.count())), width: 64, height: 64, shape: 'square', createdAt: now }));
       table = { id, number };
     }
     const open = (await wrap(O.index('tableId').getAll(table.id))).find(o => !DONE.includes(o.status));
@@ -35,6 +36,8 @@ export async function saveQuickOrder({ number, lines, comment }) {
 
 export async function getActiveOrders() {
   const orders = (await dbAll('orders')).filter(o => !DONE.includes(o.status)).sort((a, b) => a.createdAt - b.createdAt);
+  const nums = new Map((await dbAll('tables')).map(t => [t.id, t.number]));
+  for (const o of orders) o.tableNumber = nums.get(o.tableId) ?? o.tableNumber;
   for (const o of orders) o.items = (await dbIndex('orderItems', 'orderId', o.id)).sort((a, b) => a.addedAt - b.addedAt || a.id - b.id);
   return orders;
 }

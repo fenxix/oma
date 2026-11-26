@@ -75,3 +75,23 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .btns{display:grid;grid-template-columns:1fr 2fr;gap:8px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
 .chip{min-width:48px;min-height:44px;padding:0 14px;border-radius:12px;background:var(--accent-soft);font-weight:600}
+.phead{margin-bottom:10px}
+.tgroup{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.mini{min-height:44px;padding:0 14px;border-radius:12px;background:var(--accent-soft);font-weight:600;font-size:14px}
+.mini.on{background:var(--accent);color:#fff}
+.mini.del{color:var(--err)}
+.mini.del.on{background:var(--err);color:#fff}
+.plan{position:relative;height:440px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden}
+.plan.edit{background-image:radial-gradient(var(--line) 1.2px,transparent 1.2px);background-size:20px 20px;border-color:var(--accent-2)}
+.tbl{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--st-free);background:var(--card);border-radius:12px;user-select:none;-webkit-user-select:none;cursor:pointer;line-height:1.1}
+.tbl.round{border-radius:50%}
+.tbl.busy{border-color:var(--st-ordered);background:#EAF0F5}
+.tbl b{font-size:18px}.tbl small{font-size:10px;color:var(--text-2)}
+.plan.edit .tbl{touch-action:none;cursor:grab}
+.tbl.sel{box-shadow:0 0 0 3px var(--accent-2);border-color:var(--accent)}
+.plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:24px;color:var(--text-2)}
+.plan-empty b{color:var(--text);font-size:16px}.plan-empty p{font-size:13px;max-width:260px}
+.tool{margin-top:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.tnum{display:flex;align-items:center;gap:10px;font-weight:600}
+.tnum input{width:90px;font:inherit;font-size:17px;padding:10px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+.tcard{cursor:pointer}
