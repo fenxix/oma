@@ -1,5 +1,6 @@
 import { icon, toast, store, esc } from './utils.js';
 import { saveQuickOrder, recentTables } from './orders.js';
+import { getMenu } from './menu.js';
 
 const strip = l => l.replace(/^\d+\.\s?/, '');
 // Автонумерация: каждая строка получает "N. "
@@ -15,6 +16,7 @@ export function openQuick(onSaved, table = null) {
     <div class="row"><b>Запись заказа</b><button class="x" data-close aria-label="Закрыть">${icon('x')}</button></div>
     <div id="s1">
       <textarea id="qt" rows="6" autocomplete="off" autocapitalize="sentences" placeholder="Пишите позиции, Enter — новая строка"></textarea>
+      <div class="chips" id="sug"></div>
       <button class="btn" id="next" disabled>Заказ</button>
     </div>
     <div id="s2" hidden>
@@ -34,6 +36,25 @@ export function openQuick(onSaved, table = null) {
   renum(ta);
   const refresh = () => { $('#next').disabled = !itemsOf(ta).length; store.set('draft', itemsOf(ta).length ? ta.value : ''); };
   refresh();
+  // Подсказки из меню: пустая строка — избранное, иначе совпадения по тексту
+  let menu = [];
+  const sug = $('#sug');
+  const curLine = () => ta.value.slice(0, ta.selectionStart).split('\n').length - 1;
+  function suggest() {
+    const cur = strip(ta.value.split('\n')[curLine()] || '').trim().toLowerCase();
+    const list = (cur ? menu.filter(m => m.name.toLowerCase().includes(cur) && m.name.toLowerCase() !== cur) : menu.filter(m => m.isFavorite)).slice(0, 6);
+    sug.innerHTML = list.map(m => `<button class="chip" data-dish="${m.id}">${esc(m.name)}</button>`).join('');
+  }
+  getMenu().then(m => { menu = m; suggest(); }).catch(() => {});
+  sug.addEventListener('pointerdown', e => e.preventDefault()); // клавиатура не закрывается
+  sug.addEventListener('click', e => {
+    const b = e.target.closest('[data-dish]'); if (!b) return;
+    const m = menu.find(x => x.id === +b.dataset.dish), i = curLine(), lines = ta.value.split('\n');
+    lines[i] = m.name; ta.value = lines.join('\n'); renum(ta);
+    const end = ta.value.split('\n').slice(0, i + 1).join('\n').length;
+    ta.focus(); ta.setSelectionRange(end, end); refresh(); suggest();
+  });
+  ta.addEventListener('keyup', suggest); ta.addEventListener('click', suggest);
   setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 50);
 
   // Enter -> новая пронумерованная строка (beforeinput работает и на Android-клавиатурах)
@@ -45,12 +66,12 @@ export function openQuick(onSaved, table = null) {
     ta.value = ta.value.slice(0, pos) + '\n' + ta.value.slice(ta.selectionEnd);
     renum(ta);
     const lines = ta.value.split('\n'), end = lines.slice(0, line + 1).join('\n').length;
-    ta.setSelectionRange(end, end); refresh();
+    ta.setSelectionRange(end, end); refresh(); suggest();
   });
   ta.addEventListener('input', () => {
     if (!ta.value.trim()) ta.value = '1. ';
     const p = ta.selectionStart, before = ta.value.length;
-    renum(ta); const d = ta.value.length - before; ta.setSelectionRange(p + d, p + d); refresh();
+    renum(ta); const d = ta.value.length - before; ta.setSelectionRange(p + d, p + d); refresh(); suggest();
   });
 
   $('#next').onclick = async () => {
@@ -64,7 +85,7 @@ export function openQuick(onSaved, table = null) {
   tn.addEventListener('input', () => { $('#save').disabled = !(+tn.value > 0); });
   bg.addEventListener('click', e => {
     if (e.target === bg || e.target.closest('[data-close]')) return close();
-    const c = e.target.closest('.chip');
+    const c = e.target.closest('.chip[data-n]');
     if (c) { tn.value = c.dataset.n; tn.dispatchEvent(new Event('input')); }
   });
   $('#save').onclick = async e => {

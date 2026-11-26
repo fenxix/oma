@@ -133,3 +133,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .top li span{margin-right:8px}.top li b{float:right}
 .card.pad+.card.pad,.sgrid+.card{margin-top:10px}
 .filebtn{display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dish{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line);margin-top:6px;padding-top:2px}
+.star{width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-2)}
+.star[aria-pressed="true"]{color:var(--warn)}
+.star[aria-pressed="true"] .ico{fill:var(--warn)}
+.sheet select{width:100%;font:inherit;font-size:17px;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:var(--r-m);padding:12px;margin:8px 0 12px}
+.chk{display:flex;align-items:center;gap:10px;margin:6px 0 14px;font-size:15px}
+.sheet input[type=checkbox]{width:22px;height:22px;margin:0;padding:0}
+#sug:empty{display:none}

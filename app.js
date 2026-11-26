@@ -8,6 +8,7 @@ import { renderShift, renderHistory, bindShift } from './shiftview.js';
 import { activeShift } from './shifts.js';
 import { renderStats, bindStats } from './stats.js';
 import { renderBackup, bindBackup, autoBackup } from './backup.js';
+import { renderMenu, bindMenu } from './menuview.js';
 import { openQuick } from './quick.js';
 
 const NAV = [['hall', 'Зал', 'grid'], ['orders', 'Заказы', 'list'], ['add'], ['shift', 'Смена', 'clock'], ['more', 'Ещё', 'more']];
@@ -54,8 +55,9 @@ const screens = {
   history: renderHistory,
   stats: renderStats,
   backup: renderBackup,
+  menu: renderMenu,
   more() {
-    const items = [['chart', 'Статистика', 'stats'], ['menu', 'Моё меню'], ['star', 'Избранное'], ['note', 'Заметки'], ['timer', 'Таймеры'], ['clock', 'История смен', 'history'], ['save', 'Резервная копия', 'backup'], ['gear', 'Настройки']];
+    const items = [['chart', 'Статистика', 'stats'], ['menu', 'Моё меню', 'menu'], ['star', 'Избранное', 'menu'], ['note', 'Заметки'], ['timer', 'Таймеры'], ['clock', 'История смен', 'history'], ['save', 'Резервная копия', 'backup'], ['gear', 'Настройки']];
     return head('Ещё') + `<div class="list">${items.map(([i, t, go]) =>
       `<button class="card item" ${go ? `data-go="${go}"` : `data-soon="${t}"`}>${icon(i)}<span class="grow">${t}</span>${icon('chev')}</button>`).join('')}</div>`;
   }
@@ -93,6 +95,7 @@ bindPlan(view, () => router.refresh(), tap);
 bindShift(view, () => router.refresh());
 bindStats(view, () => router.refresh());
 bindBackup(view, () => router.refresh());
+bindMenu(view, () => router.refresh());
 autoBackup().catch(() => {});
 
 const conn = document.getElementById('conn'), connText = document.getElementById('connText');

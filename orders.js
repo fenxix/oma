@@ -1,5 +1,6 @@
 import { tx, wrap, dbAll, dbIndex } from './database.js';
 import { slot } from './tables.js';
+import { getMenu } from './menu.js';
 
 const DONE = ['paid', 'closed'];
 // "2x кофе" -> 2 штуки; остальное — одна штука
@@ -11,6 +12,7 @@ export function parseLine(s) {
 // Быстрая запись: стол + список позиций. Если у стола уже есть открытый заказ — позиции добавляются в него.
 export async function saveQuickOrder({ number, lines, comment }) {
   const now = Date.now();
+  const menu = await getMenu();
   return tx(['tables', 'orders', 'orderItems'], async (T, O, I) => {
     let table = (await wrap(T.index('number').getAll(number)))[0];
     if (!table) {
@@ -28,7 +30,8 @@ export async function saveQuickOrder({ number, lines, comment }) {
     }
     for (const line of lines) {
       const { name, quantity } = parseLine(line);
-      await wrap(I.add({ orderId, menuItemId: null, nameSnapshot: name, priceSnapshot: 0, quantity, comment: '', servingStage: null, status: 'accepted', addedAt: now, updatedAt: now, servedAt: null }));
+      const m = menu.find(x => x.name.trim().toLowerCase() === name.toLowerCase()); // блюдо из меню — цена подставится сама
+      await wrap(I.add({ orderId, menuItemId: m ? m.id : null, nameSnapshot: m ? m.name : name, priceSnapshot: m ? m.price : 0, quantity, comment: '', servingStage: null, status: 'accepted', addedAt: now, updatedAt: now, servedAt: null }));
     }
     return orderId;
   });
