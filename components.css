@@ -1,0 +1,26 @@
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-m);box-shadow:var(--shadow)}
+.conn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)}
+.conn .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.conn.off .dot{background:var(--warn)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:var(--accent-soft);font-size:12px;font-weight:500;white-space:nowrap}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--st-free)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.stat{padding:10px 4px;text-align:center}
+.stat b{display:block;font-size:20px;font-weight:700}
+.stat span{font-size:11px;color:var(--text-2)}
+.seg{display:grid;grid-template-columns:1fr 1fr;padding:3px;background:var(--accent-soft);border-radius:12px;margin-bottom:14px}
+.seg button{min-height:40px;border-radius:10px;font-weight:500;font-size:14px;color:var(--text-2);transition:var(--t)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:44px 24px;color:var(--text-2)}
+.empty .ico{width:34px;height:34px;color:var(--accent-2);margin-bottom:6px}
+.empty b{color:var(--text);font-size:16px}
+.empty p{font-size:13px;max-width:260px}
+.list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.item{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 14px;text-align:left}
+.item .ico{color:var(--accent)}
+.item .grow{flex:1;font-weight:500}
+.toasts{position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:50}
+.toast{background:var(--text);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;box-shadow:var(--shadow);animation:in .18s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

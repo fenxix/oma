@@ -1,0 +1,13 @@
+:root {
+  --bg: #F5F6F2; --card: #FFFFFF; --text: #242923; --text-2: #858B81;
+  --accent: #71866B; --accent-2: #A8B99E; --accent-soft: #E8EEE4; --line: #E8EAE4;
+  --err: #D96868; --warn: #D6A34F; --info: #7799B5;
+  /* статусы столиков */
+  --st-free: #9AA096; --st-ordered: #7799B5; --st-cooking: #D6A34F; --st-served: #71866B; --st-alert: #D96868;
+  --r-m: 14px; --r-l: 20px;
+  --shadow: 0 1px 2px rgba(36,41,35,.04), 0 4px 14px rgba(36,41,35,.05);
+  --top-h: 52px; --nav-h: 62px;
+  --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+  --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --t: .18s ease;
+}

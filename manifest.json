@@ -1,0 +1,12 @@
+{
+  "name": "OFFIC — помощник официанта",
+  "short_name": "OFFIC",
+  "description": "Столики, заказы, подача, смены и чаевые",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F6F2",
+  "theme_color": "#F5F6F2",
+  "icons": [{ "src": "assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
