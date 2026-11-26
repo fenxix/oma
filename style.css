@@ -106,3 +106,30 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .s-ready{background:var(--accent-soft);color:#4F6449}
 .s-served{background:#EEEFEB;color:var(--text-2)}
 .btn.danger{background:var(--err)}
+.ibtn{text-align:left;min-height:44px;padding:4px 0}
+.step{display:flex;align-items:center;gap:16px;margin:8px 0 12px}
+.step b{font-size:22px;min-width:32px;text-align:center}
+.step .mini{width:56px}
+.total{font-size:26px;font-weight:700;margin:16px 0 8px}
+.btns.eq{grid-template-columns:1fr 1fr;margin-top:12px}
+.warn{color:var(--warn)}
+.pad{padding:14px}
+.pad input{width:100%;font:inherit;font-size:17px;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:var(--r-m);padding:12px;margin:8px 0 12px}
+.pill.on{background:var(--accent);color:#fff}.pill.on .dot{background:#fff}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 10px}
+.sc{padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.sc span{font-size:12px;color:var(--text-2)}.sc b{font-size:20px}
+.sumr{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.hrow{display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:14px}
+.hrow span{display:flex;justify-content:space-between}
+.seg.four{grid-template-columns:repeat(4,1fr);margin-top:12px}
+.seg.four button{font-size:13px;padding:0 2px}
+.chart{margin-bottom:10px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:110px;margin:12px 0 26px}
+.bar{flex:1;height:100%;min-width:0;display:flex;align-items:flex-end;position:relative}
+.bar i{display:block;width:100%;background:var(--accent);border-radius:4px 4px 0 0}
+.bar span{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;font-size:10px;color:var(--text-2);white-space:nowrap}
+.top{margin:8px 0 0 20px;display:flex;flex-direction:column;gap:6px}
+.top li span{margin-right:8px}.top li b{float:right}
+.card.pad+.card.pad,.sgrid+.card{margin-top:10px}
+.filebtn{display:flex;align-items:center;justify-content:center;cursor:pointer}

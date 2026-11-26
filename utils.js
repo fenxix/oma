@@ -36,3 +36,6 @@ export function greeting(name = '') {
 }
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const hhmm = t => new Date(t).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+export const money = n => Math.round(n || 0).toLocaleString('ru-RU') + ' ₸';
+export const dur = ms => { const m = Math.max(0, Math.floor(ms / 60000)), h = Math.floor(m / 60); return h ? `${h} ч ${m % 60} мин` : `${m} мин`; };
+export const shortDate = t => new Date(t).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });

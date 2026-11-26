@@ -39,6 +39,7 @@ export async function getActiveOrders() {
   const nums = new Map((await dbAll('tables')).map(t => [t.id, t.number]));
   for (const o of orders) o.tableNumber = nums.get(o.tableId) ?? o.tableNumber;
   for (const o of orders) o.items = (await dbIndex('orderItems', 'orderId', o.id)).sort((a, b) => a.addedAt - b.addedAt || a.id - b.id);
+  for (const o of orders) o.total = o.items.reduce((s, i) => s + (i.priceSnapshot || 0) * i.quantity, 0);
   return orders;
 }
 
@@ -56,8 +57,24 @@ export const cycleItem = id => tx(['orderItems'], async I => {
   i.status = NEXT[i.status]; i.updatedAt = Date.now(); i.servedAt = i.status === 'served' ? i.updatedAt : null;
   await wrap(I.put(i));
 });
-export const closeOrder = id => tx(['orders'], async O => {
-  const o = await wrap(O.get(id));
-  o.status = 'closed'; o.updatedAt = Date.now();
+export const updateItem = (id, patch) => tx(['orderItems'], async I => {
+  const i = await wrap(I.get(id));
+  await wrap(I.put({ ...i, ...patch, updatedAt: Date.now() }));
+});
+// Удаляем позицию; если это была последняя — заказ закрывается пустым
+export const deleteItem = id => tx(['orderItems', 'orders'], async (I, O) => {
+  const i = await wrap(I.get(id));
+  await wrap(I.delete(id));
+  if (!(await wrap(I.index('orderId').count(i.orderId)))) {
+    const o = await wrap(O.get(i.orderId));
+    o.status = 'closed'; o.updatedAt = Date.now();
+    await wrap(O.put(o));
+  }
+});
+// Ручной учёт оплаты: способ, сумма, время. После оплаты заказ завершён.
+export const payOrder = (id, method, total) => tx(['orders', 'shifts'], async (O, S) => {
+  const o = await wrap(O.get(id)), now = Date.now();
+  const sh = (await wrap(S.getAll())).find(s => !s.endedAt); // оплата привязывается к активной смене
+  Object.assign(o, { status: 'paid', paymentMethod: method, total, paidAt: now, updatedAt: now, shiftId: sh ? sh.id : null });
   await wrap(O.put(o));
 });
