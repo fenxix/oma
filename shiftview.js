@@ -4,23 +4,24 @@ import { getActiveOrders } from './orders.js';
 
 const head = (t, s = '') => `<h1 class="h1">${t}</h1>${s ? `<p class="sub">${s}</p>` : ''}`;
 const cfg = () => store.get('settings', {});
-const typeText = (t, v) => t === 'percent' ? `${v}% от продаж` : `${money(v)} за смену`;
+const typeText = (t, v, p) => t === 'percent' ? `${v}% от продаж` : t === 'both' ? `${money(v)} + ${p}% от продаж` : `${money(v)} за смену`;
 
 export async function renderShift() {
   const sh = await activeShift();
   if (!sh) {
     const c = cfg(), type = c.salaryType || 'fixed';
+    const fx = `<label class="lbl" for="sv">${type === 'both' ? 'Ставка за смену, ₸' : 'Сумма за смену, ₸'}</label><input id="sv" type="number" inputmode="decimal" min="0" value="${c.salaryFixed ?? ''}">`;
+    const pc = `<label class="lbl" for="sp">Процент от продаж, %</label><input id="sp" type="number" inputmode="decimal" min="0" max="100" value="${c.salaryPct ?? ''}">`;
     return head('Смена', 'Смена не начата') + `<div class="card pad" style="margin-top:14px">
       <p class="lbl">Как считать заработок</p>
-      <div class="seg" role="group"><button data-stype="fixed" aria-pressed="${type === 'fixed'}">Фикс за смену</button><button data-stype="percent" aria-pressed="${type === 'percent'}">% от продаж</button></div>
-      <label class="lbl" for="sv">${type === 'fixed' ? 'Сумма за смену, ₸' : 'Процент от продаж, %'}</label>
-      <input id="sv" type="number" inputmode="decimal" min="0" value="${c.salaryValue ?? ''}">
+      <div class="seg three" role="group">${[['fixed', 'Ставка'], ['percent', '% от продаж'], ['both', 'Ставка + %']].map(([k, l]) => `<button data-stype="${k}" aria-pressed="${type === k}">${l}</button>`).join('')}</div>
+      ${type !== 'percent' ? fx : ''}${type !== 'fixed' ? pc : ''}
       <button class="btn" data-sstart>Начать смену</button></div>
       <p class="sub" style="margin-top:10px">Оплаты засчитываются в продажи только во время смены.</p>`;
   }
   const s = await shiftStats(sh);
   const cells = [['Время', `<span data-since="${sh.startedAt}">${dur(Date.now() - sh.startedAt)}</span>`], ['Заказов', s.orders], ['Столов', s.tables], ['Продажи', money(s.sales)], ['Чаевые', money(s.tips)], ['Заработок', money(s.earn)]];
-  return head('Смена', `Начало в ${hhmm(sh.startedAt)} · ${typeText(sh.salaryType, sh.salaryValue)}`) +
+  return head('Смена', `Начало в ${hhmm(sh.startedAt)} · ${typeText(sh.salaryType, sh.salaryValue, sh.salaryPercent)}`) +
     `<div class="sgrid">${cells.map(([l, v]) => `<div class="card sc"><span>${l}</span><b>${v}</b></div>`).join('')}</div>
     <p class="sub">Заработок без чаевых, чаевые считаются отдельно.</p>
     <div class="btns eq" style="margin-top:14px"><button class="btn ghost" data-stip>Чаевые</button><button class="btn" data-send>Завершить</button></div>`;
@@ -80,16 +81,18 @@ export function bindShift(view, refresh) {
     const t = e.target, ty = t.closest('[data-stype]');
     if (ty) { store.set('settings', { ...cfg(), salaryType: ty.dataset.stype }); return refresh(); }
     if (t.closest('[data-sstart]')) {
-      const c = cfg(), v = +c.salaryValue;
-      if (!(v > 0)) return toast('Укажите оплату: сумму или процент');
-      toast((await startShift(c.salaryType || 'fixed', v)) ? 'Смена началась' : 'Смена уже идёт');
+      const c = cfg(), type = c.salaryType || 'fixed', fx = +c.salaryFixed, pc = +c.salaryPct;
+      if ((type !== 'percent' && !(fx > 0)) || (type !== 'fixed' && !(pc > 0))) return toast('Укажите ставку и/или процент');
+      const ok = await startShift(type, type === 'percent' ? pc : fx, type === 'both' ? pc : 0);
+      toast(ok ? 'Смена началась' : 'Смена уже идёт');
       return refresh();
     }
     if (t.closest('[data-stip]')) return tipSheet(refresh);
     if (t.closest('[data-send]')) return endSheet(refresh);
   });
   view.addEventListener('input', e => {
-    if (e.target.id === 'sv') store.set('settings', { ...cfg(), salaryValue: e.target.value === '' ? '' : +e.target.value });
+    const k = { sv: 'salaryFixed', sp: 'salaryPct' }[e.target.id];
+    if (k) store.set('settings', { ...cfg(), [k]: e.target.value === '' ? '' : +e.target.value });
   });
   // Время смены считается от сохранённой отметки, таймер лишь обновляет текст
   setInterval(() => document.querySelectorAll('[data-since]').forEach(el => { el.textContent = dur(Date.now() - el.dataset.since); }), 30000);

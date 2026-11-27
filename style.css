@@ -141,3 +141,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .chk{display:flex;align-items:center;gap:10px;margin:6px 0 14px;font-size:15px}
 .sheet input[type=checkbox]{width:22px;height:22px;margin:0;padding:0}
 #sug:empty{display:none}
+.seg.three{grid-template-columns:repeat(3,1fr);margin-bottom:10px}
+.seg.three button{font-size:13px;padding:0 2px}
+.trow{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px}
+.trow .grow{flex:1;min-width:0}
+.tn{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-weight:700}
+.lv{font-size:12px;font-weight:600;padding:4px 8px;border-radius:99px;white-space:nowrap}
+.lv-ok{background:var(--accent-soft);color:#4F6449}
+.lv-warn{background:#FBF3E2;color:#9A7424}
+.lv-long{background:#FBE9E9;color:#B04848}
+.nbtn{display:block;width:100%;text-align:left;margin-bottom:8px}
